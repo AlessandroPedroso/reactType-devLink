@@ -30,7 +30,7 @@ export function Private({ children }: PrivateProps): any {
 
     //componente desmontado
     return () => {
-      unsub();
+      unsub(); //finaliza o olheiro
     };
   }, []);
 

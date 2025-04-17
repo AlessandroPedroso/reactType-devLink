@@ -36,7 +36,7 @@ export function Login() {
   }
 
   return (
-    <div className="flex w-full h-screen items-center justify-center flex-col">
+    <div className="px-2 flex w-full h-screen items-center justify-center flex-col">
       <Link to="/">
         <h1 className="mt-11 text-white mb-7 font-bold text-5xl">
           Dev
