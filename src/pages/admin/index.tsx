@@ -1,14 +1,56 @@
-import { FormEvent, useState } from 'react'
+import { FormEvent, useState, useEffect } from 'react'
 import { Input } from "../../components/Input";
 import { FiTrash } from 'react-icons/fi'
 import { db } from "../../services/firebaseConnection"
 import { addDoc, collection, onSnapshot, query, orderBy, doc, deleteDoc } from "firebase/firestore"
+
+interface LinksProps {
+  id: string;
+  name: string;
+  url: string;
+  bg: string;
+  color: string;
+}
+
 
 export function Admin() {
   const [nameInput, setNameInput] = useState("")
   const [urlInput, setUrlInput] = useState("")
   const [textColorInput, setTextColorInput] = useState("#f1f1f1")
   const [backgroundColorInput, setBackgroundColorInput] = useState("#121212")
+
+  const [links, setLinks] = useState<LinksProps[]>([])
+
+  useEffect(() => {
+
+    const linksRef = collection(db, "links");
+    const queryRef = query(linksRef, orderBy("created", "asc"));
+
+    const unsub = onSnapshot(queryRef, (snapshot) => {
+      let lista = [] as LinksProps[];
+
+      snapshot.forEach((doc) => {
+        lista.push({
+          id: doc.id,
+          name: doc.data().name,
+          url: doc.data().url,
+          bg: doc.data().bg,
+          color: doc.data().color,
+        })
+      })
+
+      setLinks(lista);
+      // console.log(lista);
+    });
+
+
+    return () => {
+      unsub();
+      // console.log("SAIUUU")
+    }
+
+
+  }, [])
 
   function handleRegister(e: FormEvent) {
     e.preventDefault()
@@ -34,11 +76,12 @@ export function Admin() {
       .catch((error) => {
         console.log("ERRO AO CADASTRAR NO BANCO" + error)
       })
-
-
-
   }
 
+  async function handleDeleteLink(id: string) {
+    const docRef = doc(db, "links", id) //busca o item para deletar
+    await deleteDoc(docRef)
+  }
 
   return (
     <div className="flex items-center m-auto flex-col min-h-[calc(100vh-64px)] pb-7 px-2 max-w-2xl">
@@ -65,7 +108,6 @@ export function Admin() {
               value={textColorInput}
               onChange={(e) => setTextColorInput(e.target.value)}
             />
-
           </div>
 
           <div className='flex gap-2 items-center'>
@@ -96,18 +138,20 @@ export function Admin() {
 
       <h2 className='font-bold text-white m-4 text-2xl'>Meus Links</h2>
 
-      <article
-        className='flex items-center justify-between w-11/12 max-w-xl rounded py-3 px-2 mb-2 select-none'
-        style={{ backgroundColor: "#2563EB", color: "#FFF" }}
-      >
-        <p>Canal do youtube</p>
-        <div>
-          <button className='border border-white border-dashed p-1 roundeda bg-neutral-900'>
-            <FiTrash size={18} color='#FFF' />
-          </button>
-        </div>
-      </article>
-
+      {links && links.map((item) => (
+        <article
+          key={item.id}
+          className='flex items-center justify-between w-11/12 max-w-xl rounded py-3 px-2 mb-2 select-none'
+          style={{ backgroundColor: item.bg, color: item.color }}
+        >
+          <p>{item.name}</p>
+          <div>
+            <button onClick={() => handleDeleteLink(item.id)} className='border border-white border-dashed p-1 roundeda bg-neutral-900'>
+              <FiTrash size={18} color='#FFF' />
+            </button>
+          </div>
+        </article>
+      ))}
 
     </div>
   );
