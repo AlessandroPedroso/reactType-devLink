@@ -9,7 +9,7 @@ async function handleLogout() {
 
 export function Header() {
   return (
-    <header className="flex flex-col items-center m-auto mt-4 px-1 justify-center w-full max-w-2xl">
+    <header className="flex flex-col items-center m-auto mt-4 px-2 justify-center w-full max-w-2xl">
       <nav className="w-full bg-white h-12 flex items-center justify-between rounded-md px-3">
         <div className="flex gap-4 font-medium">
           <Link to="/">Home</Link>
